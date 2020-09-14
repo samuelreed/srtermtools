@@ -1,3 +1,5 @@
 .DS_Store
+.dirty-aqi-api-key
+.dirty-router
 .dirty
 venv

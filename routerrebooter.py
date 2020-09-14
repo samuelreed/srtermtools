@@ -10,13 +10,15 @@ import os
 from docopt import docopt
 from termcolor import colored
 from bs4 import BeautifulSoup
+from os.path import exapnduser
 
 target = "192.168.0.1"
 proxies = {}  # Useful for debugging to flip back and forth and read traffic
 # proxies = {'http': 'http://localhost:9191', 'https': 'http://localhost:9191'}
 
+home = expanduser("~")
 password = ""  # TODO: research a console based secret store
-file = open(".dirty", "r")
+file = open(home + "/.dirty-router", "r")
 line = file.readlines()
 password = line[0]
 
@@ -59,7 +61,7 @@ def enableForwarding(validcookies):
 if __name__ == "__main__":
     args = docopt(__doc__, version="0.1")
 
-    if oct(os.stat(".dirty").st_mode & 0o777) != "0o600":
+    if oct(os.stat(".dirty-router").st_mode & 0o777) != "0o600":
         print("[{}] Fix file permissions on .dirty file to 600.".format(colored(u"\u2717", "red")))
         exit()
 
