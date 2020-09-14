@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Usage:
+"""
+Usage:
     sitecheck.py hash <url>
     sitecheck.py check <url> <lasthash>
 """

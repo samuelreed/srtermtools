@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Usage:
     routerrebooter check
@@ -10,7 +11,7 @@ import os
 from docopt import docopt
 from termcolor import colored
 from bs4 import BeautifulSoup
-from os.path import exapnduser
+from os.path import expanduser
 
 target = "192.168.0.1"
 proxies = {}  # Useful for debugging to flip back and forth and read traffic
@@ -36,7 +37,9 @@ def reset(validcookies):
     soup = BeautifulSoup(resp3.content, "html.parser")
     csrftoken = soup.find("input", {"name": "csrf_token"})["value"]
     payload = {"resetbt": "1", "csrf_token": csrftoken}
-    resp4 = requests.post("http://" + target + "/goform/restore_reboot", cookies=validcookies, data=payload, proxies=proxies)
+    resp4 = requests.post(
+        "http://" + target + "/goform/restore_reboot", cookies=validcookies, data=payload, proxies=proxies
+    )
 
 
 def forwardingToken(validcookies):
@@ -49,13 +52,17 @@ def forwardingToken(validcookies):
 def disableForwarding(validcookies):
     token = forwardingToken(validcookies)
     payload = {"csrf_token": token, "forwarding": "Disabled"}
-    resp4 = requests.post("http://" + target + "/goform/port_forwarding", cookies=validcookies, data=payload, proxies=proxies)
+    resp4 = requests.post(
+        "http://" + target + "/goform/port_forwarding", cookies=validcookies, data=payload, proxies=proxies
+    )
 
 
 def enableForwarding(validcookies):
     token = forwardingToken(validcookies)
     payload = {"csrf_token": token, "forwarding": "Enabled"}
-    resp4 = requests.post("http://" + target + "/goform/port_forwarding", cookies=validcookies, data=payload, proxies=proxies)
+    resp4 = requests.post(
+        "http://" + target + "/goform/port_forwarding", cookies=validcookies, data=payload, proxies=proxies
+    )
 
 
 if __name__ == "__main__":
