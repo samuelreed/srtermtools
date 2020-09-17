@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Usage:
-    aqicheck.py [<zipcode>]
+    aqicheck.py [<zipcode>] [--MOD|--USG|--UH|--VUH|--HAZ]
 """
 
 from os.path import expanduser
@@ -10,7 +10,6 @@ from termcolor import colored
 import requests
 import requests_cache
 
-url = "https://samuelreed.info"
 aqi_api = "http://www.airnowapi.org/aq/observation/zipCode/current/"
 
 proxies = {}
@@ -23,13 +22,13 @@ def aqicolor(value):
     elif value > 50 and value <= 100:
         return "yellow"
     elif value > 100 and value <= 150:
-        return "orange"
+        return "yellow"
     elif value > 150 and value <= 200:
         return "red"
     elif value > 200 and value <= 300:
-        return "purple"
+        return "magenta"
     elif value > 300:
-        return "maroon"
+        return "magenta"
     return "blue"  # Unavailable, TODO: What does AQI value report as if Unavailable? Not in doc.
 
 
@@ -51,9 +50,12 @@ if __name__ == "__main__":
 
     payload = {"format": "application/json", "distance": "5", "zipCode": zipcode, "API_KEY": api_key}
     resp = requests.get(aqi_api, params=payload, proxies=proxies)
-    # print(resp.from_cache)
+    print(resp.status_code)
+    print(resp.from_cache)
 
-    # print(resp.json())
+    print(args)
+
+    print(resp.json())
     for i in resp.json():
         if i["ParameterName"] == "PM2.5":
             aqic = aqicolor(i["AQI"])
@@ -70,4 +72,18 @@ if __name__ == "__main__":
                 + i["LocalTimeZone"]
                 + "."
             )
-            print(msg)
+
+            aqi_threshold = 0
+            if( args["--MOD"]):
+                aqi_threshold = 2
+            elif( args["--USG"]):
+                aqi_threshold = 3
+            elif( args["--UH"]):
+                aqi_threshold = 4
+            elif( args["--VUH"]):
+                aqi_threshold = 5
+            elif( args["--HAZ"]):
+                aqi_threshold = 6
+
+            if( i["Category"]["Number"] >= aqi_threshold ):
+                print(msg)
