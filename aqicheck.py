@@ -50,12 +50,11 @@ if __name__ == "__main__":
 
     payload = {"format": "application/json", "distance": "5", "zipCode": zipcode, "API_KEY": api_key}
     resp = requests.get(aqi_api, params=payload, proxies=proxies)
-    print(resp.status_code)
-    print(resp.from_cache)
-
-    print(args)
-
-    print(resp.json())
+    #print(resp.status_code)
+    #print(resp.from_cache)
+    #print(args)
+    
+    #print(resp.json())
     for i in resp.json():
         if i["ParameterName"] == "PM2.5":
             aqic = aqicolor(i["AQI"])

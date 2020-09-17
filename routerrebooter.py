@@ -69,7 +69,7 @@ if __name__ == "__main__":
     args = docopt(__doc__, version="0.1")
 
     if oct(os.stat(".dirty-router").st_mode & 0o777) != "0o600":
-        print("[{}] Fix file permissions on .dirty file to 600.".format(colored(u"\u2717", "red")))
+        print("[{}] Fix file permissions on .dirty-router file to 600.".format(colored(u"\u2717", "red")))
         exit()
 
     if args["check"]:
