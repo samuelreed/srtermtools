@@ -46,7 +46,11 @@ if __name__ == "__main__":
             elif compare < 50 and compare > 0:
                 verdict = "Site Modified Heavily."
                 color = "magenta"
-            print("[ {} ] for {}: {}".format(colored(status, color), args["<url>"], colored(verdict, color)))
+            print(
+                "[ {} ] for {}: {}".format(
+                    colored(status, color), args["<url>"], colored(verdict, color)
+                )
+            )
         except requests.ConnectionError:
             print("Unreachable site: {}".format(args["<url>"]))
     else:

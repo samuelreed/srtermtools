@@ -33,17 +33,28 @@ def login():
 
 
 def reset(validcookies):
-    resp3 = requests.get("http://" + target + "/restore_reboot.asp", cookies=validcookies, proxies=proxies)
+    resp3 = requests.get(
+        "http://" + target + "/restore_reboot.asp",
+        cookies=validcookies,
+        proxies=proxies,
+    )
     soup = BeautifulSoup(resp3.content, "html.parser")
     csrftoken = soup.find("input", {"name": "csrf_token"})["value"]
     payload = {"resetbt": "1", "csrf_token": csrftoken}
     resp4 = requests.post(
-        "http://" + target + "/goform/restore_reboot", cookies=validcookies, data=payload, proxies=proxies
+        "http://" + target + "/goform/restore_reboot",
+        cookies=validcookies,
+        data=payload,
+        proxies=proxies,
     )
 
 
 def forwardingToken(validcookies):
-    resp3 = requests.get("http://" + target + "/port_forwarding.asp", cookies=validcookies, proxies=proxies)
+    resp3 = requests.get(
+        "http://" + target + "/port_forwarding.asp",
+        cookies=validcookies,
+        proxies=proxies,
+    )
     soup = BeautifulSoup(resp3.content, "html.parser")
     csrftoken = soup.find("input", {"name": "csrf_token"})["value"]
     return csrftoken
@@ -53,7 +64,10 @@ def disableForwarding(validcookies):
     token = forwardingToken(validcookies)
     payload = {"csrf_token": token, "forwarding": "Disabled"}
     resp4 = requests.post(
-        "http://" + target + "/goform/port_forwarding", cookies=validcookies, data=payload, proxies=proxies
+        "http://" + target + "/goform/port_forwarding",
+        cookies=validcookies,
+        data=payload,
+        proxies=proxies,
     )
 
 
@@ -61,7 +75,10 @@ def enableForwarding(validcookies):
     token = forwardingToken(validcookies)
     payload = {"csrf_token": token, "forwarding": "Enabled"}
     resp4 = requests.post(
-        "http://" + target + "/goform/port_forwarding", cookies=validcookies, data=payload, proxies=proxies
+        "http://" + target + "/goform/port_forwarding",
+        cookies=validcookies,
+        data=payload,
+        proxies=proxies,
     )
 
 
@@ -69,13 +86,21 @@ if __name__ == "__main__":
     args = docopt(__doc__, version="0.1")
 
     if oct(os.stat(".dirty-router").st_mode & 0o777) != "0o600":
-        print("[{}] Fix file permissions on .dirty-router file to 600.".format(colored(u"\u2717", "red")))
+        print(
+            "[{}] Fix file permissions on .dirty-router file to 600.".format(
+                colored(u"\u2717", "red")
+            )
+        )
         exit()
 
     if args["check"]:
         try:
             login()
-            print("[{}] Verification of login was successful.".format(colored(u"\u2713", "green")))
+            print(
+                "[{}] Verification of login was successful.".format(
+                    colored(u"\u2713", "green")
+                )
+            )
         except Exception as err:
             print("[{}] Login to the router failed.".format(colored(u"\u2717", "red")))
     elif args["reset"]:

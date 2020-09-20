@@ -37,7 +37,11 @@ if __name__ == "__main__":
     args = docopt(__doc__, version="0.1")
 
     if oct(os.stat(".dirty-aqi-api-key").st_mode & 0o777) != "0o600":
-        print("[{}] Fix file permissions on .dirty-aqi-api-key file to 600.".format(colored(u"\u2717", "red")))
+        print(
+            "[{}] Fix file permissions on .dirty-aqi-api-key file to 600.".format(
+                colored(u"\u2717", "red")
+            )
+        )
         exit()
 
     home = expanduser("~")
@@ -53,7 +57,12 @@ if __name__ == "__main__":
     cachefile = home + "/.dirty-aqi-cache"
     requests_cache.install_cache(cachefile, expire_after=3600)
 
-    payload = {"format": "application/json", "distance": "5", "zipCode": zipcode, "API_KEY": api_key}
+    payload = {
+        "format": "application/json",
+        "distance": "5",
+        "zipCode": zipcode,
+        "API_KEY": api_key,
+    }
     resp = requests.get(aqi_api, params=payload, proxies=proxies)
 
     for i in resp.json():
@@ -74,18 +83,19 @@ if __name__ == "__main__":
             )
 
             aqi_threshold = 0
-            if( args["--MOD"]):
+            if args["--MOD"]:
                 aqi_threshold = 2
-            elif( args["--USG"]):
+            elif args["--USG"]:
                 aqi_threshold = 3
-            elif( args["--UH"]):
+            elif args["--UH"]:
                 aqi_threshold = 4
-            elif( args["--VUH"]):
+            elif args["--VUH"]:
                 aqi_threshold = 5
-            elif( args["--HAZ"]):
+            elif args["--HAZ"]:
                 aqi_threshold = 6
 
-            if( i["Category"]["Number"] >= aqi_threshold ):
+            if i["Category"]["Number"] >= aqi_threshold:
                 print(msg)
 
-            # TODO: Discovered a fun little issue during clean up of the code. The Cachce contains the API key. Need to address this before making repo public.
+            if oct(os.stat(".dirty-aqi-cache.sqlite").st_mode & 0o777) != "0o600":
+                os.chmod(cachefile + ".sqlite", 0o600)

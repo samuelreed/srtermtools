@@ -14,10 +14,18 @@ if __name__ == "__main__":
     if args["countdown"]:
         eventdate = datetime.datetime.strptime(args["<eventdate>"], "%Y-%m-%d").date()
         today = datetime.date.today()
-        print("It is {} days until {}.".format((eventdate - today).days, " ".join(args["<event>"])))
+        print(
+            "It is {} days until {}.".format(
+                (eventdate - today).days, " ".join(args["<event>"])
+            )
+        )
     elif args["countup"]:
         eventdate = datetime.datetime.strptime(args["<eventdate>"], "%Y-%m-%d").date()
         today = datetime.date.today()
-        print("It has been {} days since {}.".format((today - eventdate).days, " ".join(args["<event>"])))
+        print(
+            "It has been {} days since {}.".format(
+                (today - eventdate).days, " ".join(args["<event>"])
+            )
+        )
     else:
         print(docopt(__doc__))
