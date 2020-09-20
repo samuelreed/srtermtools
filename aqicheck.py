@@ -7,6 +7,7 @@ Usage:
 from os.path import expanduser
 from docopt import docopt
 from termcolor import colored
+import os
 import requests
 import requests_cache
 
@@ -35,6 +36,10 @@ def aqicolor(value):
 if __name__ == "__main__":
     args = docopt(__doc__, version="0.1")
 
+    if oct(os.stat(".dirty-aqi-api-key").st_mode & 0o777) != "0o600":
+        print("[{}] Fix file permissions on .dirty-aqi-api-key file to 600.".format(colored(u"\u2717", "red")))
+        exit()
+
     home = expanduser("~")
     api_key = ""  # TODO: research a console based secret store
     file = open(home + "/.dirty-aqi-api-key", "r")
@@ -50,11 +55,7 @@ if __name__ == "__main__":
 
     payload = {"format": "application/json", "distance": "5", "zipCode": zipcode, "API_KEY": api_key}
     resp = requests.get(aqi_api, params=payload, proxies=proxies)
-    #print(resp.status_code)
-    #print(resp.from_cache)
-    #print(args)
-    
-    #print(resp.json())
+
     for i in resp.json():
         if i["ParameterName"] == "PM2.5":
             aqic = aqicolor(i["AQI"])
@@ -86,3 +87,5 @@ if __name__ == "__main__":
 
             if( i["Category"]["Number"] >= aqi_threshold ):
                 print(msg)
+
+            # TODO: Discovered a fun little issue during clean up of the code. The Cachce contains the API key. Need to address this before making repo public.
