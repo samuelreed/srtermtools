@@ -64,6 +64,10 @@ if __name__ == "__main__":
         "API_KEY": api_key,
     }
     resp = requests.get(aqi_api, params=payload, proxies=proxies)
+    if(resp.status_code != 200):
+        print("[{}] Did not get 200 code from API.".format(
+                colored(u"\u2717", "red")))
+        exit()
 
     for i in resp.json():
         if i["ParameterName"] == "PM2.5":
