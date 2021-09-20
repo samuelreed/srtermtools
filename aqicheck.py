@@ -30,13 +30,15 @@ def aqicolor(value):
         return "magenta"
     elif value > 300:
         return "magenta"
-    return "blue"  # Unavailable, TODO: What does AQI value report as if Unavailable? Not in doc.
+    # Unavailable, TODO: What does AQI value report as if Unavailable? Not in doc.
+    return "blue"
 
 
 if __name__ == "__main__":
     args = docopt(__doc__, version="0.1")
 
-    if oct(os.stat(".dirty-aqi-api-key").st_mode & 0o777) != "0o600":
+    home = expanduser("~")
+    if oct(os.stat(home + "/.dirty-aqi-api-key").st_mode & 0o777) != "0o600":
         print(
             "[{}] Fix file permissions on .dirty-aqi-api-key file to 600.".format(
                 colored(u"\u2717", "red")
@@ -44,7 +46,6 @@ if __name__ == "__main__":
         )
         exit()
 
-    home = expanduser("~")
     api_key = ""  # TODO: research a console based secret store
     file = open(home + "/.dirty-aqi-api-key", "r")
     line = file.readlines()
@@ -63,43 +64,51 @@ if __name__ == "__main__":
         "zipCode": zipcode,
         "API_KEY": api_key,
     }
-    resp = requests.get(aqi_api, params=payload, proxies=proxies)
-    if(resp.status_code != 200):
-        print("[{}] Did not get 200 code from API.".format(
-                colored(u"\u2717", "red")))
-        exit()
-
-    for i in resp.json():
-        if i["ParameterName"] == "PM2.5":
-            aqic = aqicolor(i["AQI"])
-            msg = (
-                "[ "
-                + colored(i["AQI"], aqic)
-                + " ] AirNow reports AQI for "
-                + zipcode
-                + " is "
-                + colored(i["Category"]["Name"], aqic)
-                + " as of "
-                + str(i["HourObserved"])
-                + ":00 "
-                + i["LocalTimeZone"]
-                + "."
+    try:
+        resp = requests.get(aqi_api, params=payload, proxies=proxies)
+        if resp.status_code != 200:
+            print(
+                "[{}] Did not get 200 code from API.".format(colored(u"\u2717", "red"))
             )
+            exit()
 
-            aqi_threshold = 0
-            if args["--MOD"]:
-                aqi_threshold = 2
-            elif args["--USG"]:
-                aqi_threshold = 3
-            elif args["--UH"]:
-                aqi_threshold = 4
-            elif args["--VUH"]:
-                aqi_threshold = 5
-            elif args["--HAZ"]:
-                aqi_threshold = 6
+        for i in resp.json():
+            if i["ParameterName"] == "PM2.5":
+                aqic = aqicolor(i["AQI"])
+                msg = (
+                    "[ "
+                    + colored(i["AQI"], aqic)
+                    + " ] AirNow reports AQI for "
+                    + zipcode
+                    + " is "
+                    + colored(i["Category"]["Name"], aqic)
+                    + " as of "
+                    + str(i["HourObserved"])
+                    + ":00 "
+                    + i["LocalTimeZone"]
+                    + "."
+                )
 
-            if i["Category"]["Number"] >= aqi_threshold:
-                print(msg)
+                aqi_threshold = 0
+                if args["--MOD"]:
+                    aqi_threshold = 2
+                elif args["--USG"]:
+                    aqi_threshold = 3
+                elif args["--UH"]:
+                    aqi_threshold = 4
+                elif args["--VUH"]:
+                    aqi_threshold = 5
+                elif args["--HAZ"]:
+                    aqi_threshold = 6
 
-            if oct(os.stat(".dirty-aqi-cache.sqlite").st_mode & 0o777) != "0o600":
-                os.chmod(cachefile + ".sqlite", 0o600)
+                if i["Category"]["Number"] >= aqi_threshold:
+                    print(msg)
+
+                if oct(os.stat(home + "/.dirty-aqi-cache.sqlite").st_mode & 0o777) != "0o600":
+                    os.chmod(cachefile + ".sqlite", 0o600)
+    except requests.exceptions.RequestException as err:
+        print("Error thrown of type requests.exception during connection attempt.")
+        exit()
+    except Exception as err:
+        print("Non-Requests exception thrown.")
+        exit()
