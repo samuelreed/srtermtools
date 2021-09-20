@@ -104,7 +104,10 @@ if __name__ == "__main__":
                 if i["Category"]["Number"] >= aqi_threshold:
                     print(msg)
 
-                if oct(os.stat(home + "/.dirty-aqi-cache.sqlite").st_mode & 0o777) != "0o600":
+                if (
+                    oct(os.stat(home + "/.dirty-aqi-cache.sqlite").st_mode & 0o777)
+                    != "0o600"
+                ):
                     os.chmod(cachefile + ".sqlite", 0o600)
     except requests.exceptions.RequestException as err:
         print("Error thrown of type requests.exception during connection attempt.")
