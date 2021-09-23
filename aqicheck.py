@@ -110,8 +110,12 @@ if __name__ == "__main__":
                 ):
                     os.chmod(cachefile + ".sqlite", 0o600)
     except requests.exceptions.RequestException as err:
-        print("Error thrown of type requests.exception during connection attempt.")
+        print(
+            "[{}] RequestException thrown, common when disconnnected from the Internet.".format(
+                colored(u"\u2717", "red")
+            )
+        )
         exit()
     except Exception as err:
-        print("Non-Requests exception thrown.")
+        print("[{}] Exception thrown, unknown cause.".format(colored(u"\u2717", "red")))
         exit()

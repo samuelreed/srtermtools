@@ -21,13 +21,22 @@ def fetchpage(url):
 if __name__ == "__main__":
     args = docopt(__doc__, version="0.1")
 
+    URL = args["<url>"]
+
     if args["hash"]:
-        status, newhash = fetchpage(args["<url>"])
-        print("[ {} ] for {}: {}".format(status, args["<url>"], newhash))
+        try:
+            status, newhash = fetchpage(URL)
+            if status == 200:
+                color = "green"
+            else:
+                color = "red"
+            print("[ {} ] for {}: {}".format(colored(status, color), URL, newhash))
+        except requests.ConnectionError:
+            print("[{}] Unreachable site: {}".format(colored(u"\u2717", "red"), URL))
     elif args["check"]:
         catcherror = 0
         try:
-            status, newhash = fetchpage(args["<url>"])
+            status, newhash = fetchpage(URL)
             verdict = "Verdict Never Set."
             color = "green"
             compare = ssdeep.compare(newhash, args["<lasthash>"])
@@ -48,10 +57,10 @@ if __name__ == "__main__":
                 color = "magenta"
             print(
                 "[ {} ] for {}: {}".format(
-                    colored(status, color), args["<url>"], colored(verdict, color)
+                    colored(status, color), URL, colored(verdict, color)
                 )
             )
         except requests.ConnectionError:
-            print("Unreachable site: {}".format(args["<url>"]))
+            print("[{}] Unreachable site: {}".format(colored(u"\u2717", "red"), URL))
     else:
         print(docopt(__doc__))
