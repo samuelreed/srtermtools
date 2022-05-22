@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 """
 Usage:
     aqicheck.py [<zipcode>] [--MOD|--USG|--UH|--VUH|--HAZ]

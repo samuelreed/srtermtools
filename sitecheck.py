@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 """
 Usage:
     sitecheck.py hash <url>
@@ -11,11 +12,17 @@ import requests
 from termcolor import colored
 
 
-def fetchpage(url):
-    r = requests.get(url)
-    status = r.status_code
-    newhash = ssdeep.hash(r.text)
-    return status, newhash
+class SiteCheck(object):
+    def fetch_page(self, url: str):
+        r = requests.get(url)
+        status = r.status_code
+        newhash = ssdeep.hash(r.text)
+        return status, newhash
+
+    def check_page(self, url: str, oldhash: str):
+        status, newhash = self.fetch_page(url)
+        compare = ssdeep.compare(newhash, oldhash)
+        return status, compare
 
 
 if __name__ == "__main__":
@@ -25,7 +32,8 @@ if __name__ == "__main__":
 
     if args["hash"]:
         try:
-            status, newhash = fetchpage(URL)
+            sc = SiteCheck()
+            status, newhash = sc.fetch_page(URL)
             if status == 200:
                 color = "green"
             else:
@@ -36,10 +44,11 @@ if __name__ == "__main__":
     elif args["check"]:
         catcherror = 0
         try:
-            status, newhash = fetchpage(URL)
+            sc = SiteCheck()
+            status, compare = sc.check_page(URL, args["<lasthash>"])
             verdict = "Verdict Never Set."
             color = "green"
-            compare = ssdeep.compare(newhash, args["<lasthash>"])
+
             if compare == 0:
                 verdict = "Site Changed Completely."
                 color = "magenta"

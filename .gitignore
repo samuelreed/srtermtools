@@ -1,6 +1,10 @@
+.unotes
+.coverage
 .DS_Store
 .dirty-aqi-api-key
 .dirty-router
 .dirty
 .vscode
 venv
+.venv
+__pycache__
