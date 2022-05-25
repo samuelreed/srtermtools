@@ -38,9 +38,9 @@ if __name__ == "__main__":
                 color = "green"
             else:
                 color = "red"
-            print("[ {} ] for {}: {}".format(colored(status, color), URL, newhash))
+            print(f"[ {colored(status,color)} ] for {URL}: {newhash}")
         except requests.ConnectionError:
-            print("[{}] Unreachable site: {}".format(colored(u"\u2717", "red"), URL))
+            print("[{}] Unreachable site: {}".format(colored("\u2717", "red"), URL))
     elif args["check"]:
         catcherror = 0
         try:
@@ -64,12 +64,8 @@ if __name__ == "__main__":
             elif compare < 50 and compare > 0:
                 verdict = "Site Modified Heavily."
                 color = "magenta"
-            print(
-                "[ {} ] for {}: {}".format(
-                    colored(status, color), URL, colored(verdict, color)
-                )
-            )
+            print(f"[ {colored(status, color)} ] for {URL}: {colored(verdict, color)}")
         except requests.ConnectionError:
-            print("[{}] Unreachable site: {}".format(colored(u"\u2717", "red"), URL))
+            print("[{}] Unreachable site: {}".format(colored("\u2717", "red"), URL))
     else:
         print(docopt(__doc__))

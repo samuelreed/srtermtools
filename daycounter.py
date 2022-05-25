@@ -15,17 +15,13 @@ if __name__ == "__main__":
         eventdate = datetime.datetime.strptime(args["<eventdate>"], "%Y-%m-%d").date()
         today = datetime.date.today()
         print(
-            "It is {} days until {}.".format(
-                (eventdate - today).days, " ".join(args["<event>"])
-            )
+            f"It is {(eventdate - today).days} days until {' '.join(args['<event>'])}."
         )
     elif args["countup"]:
         eventdate = datetime.datetime.strptime(args["<eventdate>"], "%Y-%m-%d").date()
         today = datetime.date.today()
         print(
-            "It has been {} days since {}.".format(
-                (today - eventdate).days, " ".join(args["<event>"])
-            )
+            f"It has been {(today - eventdate).days} days since {' '.join(args['<event>'])}."
         )
     else:
         print(docopt(__doc__))

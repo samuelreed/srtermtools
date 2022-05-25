@@ -1,4 +1,3 @@
-# pylint: disable=too-many-return-statements
 #!/usr/bin/env python3
 
 """
