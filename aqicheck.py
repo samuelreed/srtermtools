@@ -1,3 +1,4 @@
+# pylint: disable=too-many-return-statements
 #!/usr/bin/env python3
 
 """
@@ -9,17 +10,19 @@ from os.path import expanduser
 from docopt import docopt
 from termcolor import colored
 import os
+import sys
 import requests
 import requests_cache
 import configparser
 
-aqi_api = "http://www.airnowapi.org/aq/observation/zipCode/current/"
+AQI_API = "http://www.airnowapi.org/aq/observation/zipCode/current/"
 
 proxies = {}
 # proxies = {'http': 'http://localhost:9191', 'https': 'http://localhost:9191'}
 
 
 def aqicolor(value):
+    """Return color for the AQI range."""
     if value >= 0 and value <= 50:
         return "green"
     elif value > 50 and value <= 100:
@@ -32,16 +35,14 @@ def aqicolor(value):
         return "magenta"
     elif value > 300:
         return "magenta"
-    # Unavailable, TODO: What does AQI value report as if Unavailable? Not in doc.
-    # After running for years, I haven't seen the API return this yet...
-    return "blue"
+    else:
+        return "blue"
 
 
 if __name__ == "__main__":
     args = docopt(__doc__, version="0.1")
 
     home = expanduser("~")
-
     # Basically using a file with a secret in the user's home directory;
     # Similar approach to SSH keys in the user home, except I want this to be
     # automated and not require a password to decrypt due to automation.
@@ -50,10 +51,10 @@ if __name__ == "__main__":
     if oct(os.stat(home + "/.aqi.ini").st_mode & 0o777) != "0o600":
         print(
             "[{}] Fix file permissions on .aqi.ini file to 600.".format(
-                colored(u"\u2717", "red")
+                colored("\u2717", "red")
             )
         )
-        exit()
+        sys.exit()
 
     cp = configparser.ConfigParser()
     cp.read(home + "/.aqi.ini")
@@ -72,13 +73,14 @@ if __name__ == "__main__":
         "zipCode": zipcode,
         "API_KEY": api_key,
     }
+
     try:
-        resp = requests.get(aqi_api, params=payload, proxies=proxies)
+        resp = requests.get(AQI_API, params=payload, proxies=proxies)
         if resp.status_code != 200:
             print(
-                "[{}] Did not get 200 code from API.".format(colored(u"\u2717", "red"))
+                "[{}] Did not get 200 code from API.".format(colored("\u2717", "red"))
             )
-            exit()
+            sys.exit()
 
         for i in resp.json():
             if i["ParameterName"] == "PM2.5":
@@ -120,10 +122,7 @@ if __name__ == "__main__":
     except requests.exceptions.RequestException as err:
         print(
             "[{}] RequestException thrown, common when disconnnected from the Internet.".format(
-                colored(u"\u2717", "red")
+                colored("\u2717", "red")
             )
         )
-        exit()
-    except Exception as err:
-        print("[{}] Exception thrown, unknown cause.".format(colored(u"\u2717", "red")))
-        exit()
+        sys.exit()
