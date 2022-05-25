@@ -11,6 +11,7 @@ from termcolor import colored
 import os
 import requests
 import requests_cache
+import configparser
 
 aqi_api = "http://www.airnowapi.org/aq/observation/zipCode/current/"
 
@@ -32,6 +33,7 @@ def aqicolor(value):
     elif value > 300:
         return "magenta"
     # Unavailable, TODO: What does AQI value report as if Unavailable? Not in doc.
+    # After running for years, I haven't seen the API return this yet...
     return "blue"
 
 
@@ -39,20 +41,25 @@ if __name__ == "__main__":
     args = docopt(__doc__, version="0.1")
 
     home = expanduser("~")
-    if oct(os.stat(home + "/.dirty-aqi-api-key").st_mode & 0o777) != "0o600":
+
+    # Basically using a file with a secret in the user's home directory;
+    # Similar approach to SSH keys in the user home, except I want this to be
+    # automated and not require a password to decrypt due to automation.
+    # The only secret being secured here is really just an API key
+    # to a weather API. It's hardly the crown jewels.
+    if oct(os.stat(home + "/.aqi.ini").st_mode & 0o777) != "0o600":
         print(
-            "[{}] Fix file permissions on .dirty-aqi-api-key file to 600.".format(
+            "[{}] Fix file permissions on .aqi.ini file to 600.".format(
                 colored(u"\u2717", "red")
             )
         )
         exit()
 
-    api_key = ""  # TODO: research a console based secret store
-    file = open(home + "/.dirty-aqi-api-key", "r")
-    line = file.readlines()
-    api_key = line[0]
+    cp = configparser.ConfigParser()
+    cp.read(home + "/.aqi.ini")
+    api_key = cp["DEFAULT"]["api_key"]
 
-    zipcode = "94103"
+    zipcode = cp["DEFAULT"]["zipcode"]
     if args["<zipcode>"] is not None:
         zipcode = args["<zipcode>"]
 

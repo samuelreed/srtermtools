@@ -2,6 +2,7 @@
 .coverage
 .DS_Store
 .dirty-aqi-api-key
+.aqi.ini
 .dirty-router
 .dirty
 .vscode

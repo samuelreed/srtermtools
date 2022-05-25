@@ -13,12 +13,21 @@ from termcolor import colored
 from bs4 import BeautifulSoup
 from os.path import expanduser
 
+#
+#
+# WARNING: ALL OF THIS IS DEPRECATED CODE FOR AN ANCIENT ROUTER THAT NO LONGER EXISTS
+#
+#
+
+
 target = "192.168.0.1"
 proxies = {}  # Useful for debugging to flip back and forth and read traffic
 # proxies = {'http': 'http://localhost:9191', 'https': 'http://localhost:9191'}
 
 home = expanduser("~")
-password = ""  # TODO: research a console based secret store
+# Looking back at this deprecated code, I'd use a locked down configparser file
+# Will use this for aqicheck.py since that is still in use.
+password = ""
 file = open(home + "/.dirty-router", "r")
 line = file.readlines()
 password = line[0]
