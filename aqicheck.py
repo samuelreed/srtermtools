@@ -182,7 +182,7 @@ if __name__ == "__main__":
     }
 
     try:
-        response = requests.get(AQI_API, params=payload, proxies=proxies)
+        response = requests.get(AQI_API, params=payload, proxies=proxies, timeout=10)
         if response.status_code != 200:
             print(f"[{colored(CROSS_MARK, 'red')}] API request failed with status {response.status_code}: {response.reason}")
             sys.exit(1)
@@ -197,5 +197,5 @@ if __name__ == "__main__":
         process_aqi_data(response_data, zipcode, aqi_threshold)
         
     except requests.exceptions.RequestException as err:
-        print(f"[{colored(CROSS_MARK, 'red')}] RequestException: {err} (common when disconnected from Internet)")
+        print(f"[{colored(CROSS_MARK, 'red')}] Could not reach the API. Hint:Are you connected to the Internet?")
         sys.exit(1)

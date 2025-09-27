@@ -1,0 +1,23 @@
+# Terminal Tools Requirements
+# Core dependencies for srtermtools project
+
+# Command line argument parsing
+docopt>=0.6.2
+
+# Date and time utilities
+python-dateutil>=2.8.0
+
+# HTTP requests
+requests>=2.25.0
+
+# HTTP request caching
+requests-cache>=0.9.0
+
+# Terminal colors
+termcolor>=1.1.0
+
+# Fuzzy hashing for content comparison
+ssdeep>=3.4
+
+# HTML/XML parsing
+beautifulsoup4>=4.9.0
