@@ -39,6 +39,17 @@ Usage:
 ```
 aqicheck.py will hit the AIRNow API and fetch a json blob containing both ozone and PM2.5 (think ground level), if you have registered for an API Key. These keys are free for anyone who wants to register, with the caveat that you do not hammer the API. In order to comply with this, aqicheck.py uses the requests_cache package to hold onto the last request that matches the provided parameters for one hour. By default, it will fetch AQI for the northen end of San Francisco's Mission district. If a zipcode is provided as a first optional parameter, it will fetch for that zipcode. The --MOD, --USG, --UH, --VUH, --HAZ all correspond to Moderate, Unsafe for Sensitive Groups, Unhealthy, Very Unhealthy, and Hazardous readings. If those flags are set, the command will not provide an output unless it is at least at those levels. This is intended for leaving a basic call inside a file like a .zshrc, such as "aqicheck.py 90210 --USG", which then will only alert the launcher of a terminal when their location in Beverley Hills has become bad enough for a mask amongst sensitive groups.
 
+**Old School Minimalist Calendar Reminder Tool**
+```
+Usage:
+    oldcal.py [options] [<file>...]
+    oldcal.py [options] <directory>
+
+Options:
+    -A <days>  Show events for next <days> days [default: 0]
+```
+oldcal.py will provide some funcitonality that is missing in modern Linux and MacOS: the original calendar reminder system. Not to be confused with cal, calendar was a tool to parse out calendar files and remind people of dates like holidays. It was removed from MacOS and most modern distros, but still lives on with extensive libraries for it on BSD systems. While I was looking to replace it, I discovered the remind command, but couldn't get exactly the output I wanted. I ended up creating oldcal.py to just carry over the features I wanted, along with calender2remind.py to convert a large number of my own personal calendar files over into the remind file format. Admittedly, this isn't my own code but fully generated with Github Copilot (Claude 4), and I wanted the functionality but not the effort to write it myself. Amazing what these AI generators can do in a few minutes.
+
 **RouterRebooter Tool - DEPRECATED**
 ```
 Usage:

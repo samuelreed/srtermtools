@@ -9,3 +9,10 @@
 venv
 .venv
 __pycache__
+
+# Calendar directory - exclude all files except calendar.romanfestivals
+calendar/*
+!calendar/calendar.romanfestivals
+
+remind/*
+!remind/romanfestivals-cal.rem
