@@ -10,6 +10,25 @@ Example of outputs:
 * aqicheck - checks air quality index for a zipcode, defaulting to the author's home. You will need an API key by signing up for one at https://docs.airnowapi.org/login and dropping it in a .dirty-aqi-api-key file.
 * routerrebooter (DEPRECATED) - performs quick resets and port forwarding changes for the ancient Technicolor brand TC8305C router. It is pretty janky, and the whole request/resp flow was reverse engineered with a proxy since there is no API. 
 
+## Installation
+
+Install Python dependencies:
+```bash
+pip3 install -r requirements.txt
+```
+
+**Note**: The `ssdeep` package requires system libraries. Use the provided install script for automated setup:
+```bash
+./install_ssdeep.sh
+```
+
+Or install manually:
+- **macOS**: `brew install ssdeep && pip3 install ssdeep`
+- **Debian/Ubuntu**: `sudo apt-get install libfuzzy-dev && pip3 install ssdeep`
+- **Fedora/RHEL**: `sudo dnf install ssdeep-devel && pip3 install ssdeep`
+
+## Testing
+
 How do I run the tests?
 * python3 -m unittest discover -s tests -p '*_test.py'
 
