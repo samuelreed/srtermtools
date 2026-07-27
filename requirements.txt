@@ -20,4 +20,4 @@ termcolor>=2.4.0,<3
 ssdeep>=3.4,<4
 
 # HTML/XML parsing
-beautifulsoup4>=4.12.3,<5
+beautifulsoup4>=4.15.0,<5
