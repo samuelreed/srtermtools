@@ -7,7 +7,7 @@ Example of outputs:
 
 * daycounter - gives a console output for the # of days since or before an upcoming event. Nice to keep track of accomplishments, upcoming events, or check how long since something has happened such as accidents on the factory floor.
 * sitecheck - performs quick fuzzy hashes of websites and can check up on the hashes to identify various degrees of bit changes. Intended as a lightweight tripwire for changes or if the site is unavailable.
-* aqicheck - checks air quality index for a zipcode, defaulting to the author's home. You will need an API key by signing up for one at https://docs.airnowapi.org/login and dropping it in a .dirty-aqi-api-key file.
+* aqicheck - checks air quality index for a zipcode, defaulting to the author's home. You will need an API key by signing up for one at https://docs.airnowapi.org/login and storing it in `~/.aqi.ini`.
 * routerrebooter (DEPRECATED) - performs quick resets and port forwarding changes for the ancient Technicolor brand TC8305C router. It is pretty janky, and the whole request/resp flow was reverse engineered with a proxy since there is no API. 
 
 ## Installation
@@ -15,6 +15,12 @@ Example of outputs:
 Install Python dependencies:
 ```bash
 pip3 install -r requirements.txt
+```
+
+Install developer tooling:
+```bash
+pip3 install -r requirements-dev.txt
+pre-commit install
 ```
 
 **Note**: The `ssdeep` package requires system libraries. Use the provided install script for automated setup:
@@ -34,6 +40,23 @@ How do I run the tests?
 
 To check test coverage:
 * coverage erase; coverage run -m unittest discover -s tests -p '*_test.py'; coverage report
+
+## Continuous Integration
+
+GitHub Actions runs linting and tests for pushes and pull requests:
+- `ruff check .`
+- `black --check .`
+- `python -m unittest discover -s tests -p '*_test.py' -v`
+
+Dependabot is configured for monthly updates to Python dependencies and GitHub Actions.
+
+## Copilot Workflow Assets
+
+This repository includes Copilot collaboration assets:
+- `.github/copilot-instructions.md` for project-specific coding behavior
+- `.github/prompts/` reusable prompts for common tasks (`new-tool`, `refactor-safe`, `add-tests`)
+- issue templates for bug, feature, and structured Copilot implementation tasks
+- a PR template with validation and Copilot review checklist
 
 **DayCounter Tool**
 ```

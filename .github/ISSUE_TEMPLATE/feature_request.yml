@@ -1,0 +1,45 @@
+name: Feature request
+description: Propose an enhancement for a CLI tool
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: tool
+    attributes:
+      label: Target tool
+      options:
+        - New tool
+        - daycounter.py
+        - sitecheck.py
+        - aqicheck.py
+        - oldcal.py
+        - calendar2remind.py
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What user problem does this solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_cli
+    attributes:
+      label: Proposed CLI interface
+      description: Include docopt usage style and example commands
+      placeholder: |
+        Usage:
+            tool.py command [options]
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Include expected output, stderr behavior, and test expectations
+    validations:
+      required: true

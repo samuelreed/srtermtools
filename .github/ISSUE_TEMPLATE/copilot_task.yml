@@ -1,0 +1,41 @@
+name: Copilot implementation task
+description: Structured task for GitHub Copilot coding agent
+title: "copilot: "
+labels: ["copilot", "enhancement"]
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: One clear paragraph describing the desired end state
+    validations:
+      required: true
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints
+      description: Required/forbidden changes, compatibility limits, UX requirements
+      placeholder: |
+        - Keep standalone script layout
+        - Preserve silent-by-default behavior
+        - Do not add shared module dependencies between tools
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Files likely affected
+      description: List entry points, tests, and docs expected to change
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification steps
+      description: Commands and expected results for validation
+      placeholder: |
+        python -m unittest discover -s tests -p '*_test.py' -v
+        pre-commit run --all-files
+    validations:
+      required: true
