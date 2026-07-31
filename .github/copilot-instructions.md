@@ -110,17 +110,20 @@ AQI 94105: PM2.5=35 (Good), Ozone=28 (Good)
 # Run all tests (discovers *_test.py in tests/)
 python3 -m unittest discover -s tests -p '*_test.py'
 
+# Local lint/format validation
+ruff check .
+black --check .
+
 # Test coverage
 coverage erase
 coverage run -m unittest discover -s tests -p '*_test.py'
 coverage report
 ```
 
-### CI Expectations
-- GitHub Actions runs `ruff`, `black --check`, and `unittest` on pushes/PRs
-- Changes should pass local checks before opening PRs:
-    - `pre-commit run --all-files`
-    - `python3 -m unittest discover -s tests -p '*_test.py' -v`
+### Automation Policy
+- Do not add GitHub Actions workflows, Dependabot configs, or other GitHub-hosted automation to this repository.
+- Prefer local-only validation commands such as `pre-commit run --all-files`, `ruff check .`, `black --check .`, and `python3 -m unittest discover -s tests -p '*_test.py' -v`.
+- If automation is needed, keep it local and user-invoked rather than GitHub-triggered.
 
 **Test patterns:**
 - Tests named `*_test.py` (NOT `test_*.py`)

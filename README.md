@@ -38,17 +38,14 @@ Or install manually:
 How do I run the tests?
 * python3 -m unittest discover -s tests -p '*_test.py'
 
+Local validation only:
+* ruff check .
+* black --check .
+
 To check test coverage:
 * coverage erase; coverage run -m unittest discover -s tests -p '*_test.py'; coverage report
 
-## Continuous Integration
-
-GitHub Actions runs linting and tests for pushes and pull requests:
-- `ruff check .`
-- `black --check .`
-- `python -m unittest discover -s tests -p '*_test.py' -v`
-
-Dependabot is configured for monthly updates to Python dependencies and GitHub Actions.
+This repository intentionally does not use GitHub-hosted CI or Dependabot. Run checks locally when needed.
 
 ## Copilot Workflow Assets
 
