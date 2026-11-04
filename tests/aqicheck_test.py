@@ -138,6 +138,27 @@ class TestAqiCheckResponses(unittest.TestCase):
     def test_process_aqi_data_prints_summary_when_threshold_met(self):
         response_data = [
             {
+                "parameterName": "PM2.5",
+                "aqi": 105,
+                "categoryNumber": 3,
+                "categoryName": "Unhealthy for Sensitive Groups",
+                "dateValid": "2026-05-12",
+            }
+        ]
+
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        with contextlib.redirect_stdout(stdout):
+            with contextlib.redirect_stderr(stderr):
+                aqicheck.process_aqi_data(response_data, "94105", 0)
+
+        self.assertIn("AirNow reports AQI for 94105 is", stdout.getvalue())
+        self.assertIn("for 2026-05-12", stdout.getvalue())
+        self.assertEqual(stderr.getvalue(), "")
+
+    def test_process_aqi_data_legacy_shape_still_parses(self):
+        response_data = [
+            {
                 "ParameterName": "PM2.5",
                 "AQI": 105,
                 "Category": {
@@ -155,7 +176,7 @@ class TestAqiCheckResponses(unittest.TestCase):
             with contextlib.redirect_stderr(stderr):
                 aqicheck.process_aqi_data(response_data, "94105", 0)
 
-        self.assertIn("AirNow reports AQI for 94105 is", stdout.getvalue())
+        self.assertIn("as of 11:00 PST", stdout.getvalue())
         self.assertEqual(stderr.getvalue(), "")
 
     def test_process_aqi_data_missing_pm25_writes_stderr_and_exits(self):

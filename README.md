@@ -28,10 +28,10 @@ pre-commit install
 ./install_ssdeep.sh
 ```
 
-Or install manually:
-- **macOS**: `brew install ssdeep && pip3 install ssdeep`
-- **Debian/Ubuntu**: `sudo apt-get install libfuzzy-dev && pip3 install ssdeep`
-- **Fedora/RHEL**: `sudo dnf install ssdeep-devel && pip3 install ssdeep`
+Or install manually (recommended: use the same interpreter you run tools with, e.g. pyenv Python):
+- **macOS**: `brew install ssdeep && python -m pip install ssdeep`
+- **Debian/Ubuntu**: `sudo apt-get install libfuzzy-dev && python -m pip install ssdeep`
+- **Fedora/RHEL**: `sudo dnf install ssdeep-devel && python -m pip install ssdeep`
 
 ## Testing
 
@@ -88,6 +88,13 @@ Options:
     -A <days>  Show events for next <days> days [default: 0]
 ```
 oldcal.py will provide some funcitonality that is missing in modern Linux and MacOS: the original calendar reminder system. Not to be confused with cal, calendar was a tool to parse out calendar files and remind people of dates like holidays. It was removed from MacOS and most modern distros, but still lives on with extensive libraries for it on BSD systems. While I was looking to replace it, I discovered the remind command, but couldn't get exactly the output I wanted. I ended up creating oldcal.py to just carry over the features I wanted, along with calender2remind.py to convert a large number of my own personal calendar files over into the remind file format. Admittedly, this isn't my own code but fully generated with Github Copilot (Claude 4), and I wanted the functionality but not the effort to write it myself. Amazing what these AI generators can do in a few minutes.
+
+**Ollama Update**
+```
+Usage:
+    ollama_update.py
+```
+This is a script to parse the installed LLMs with Ollama, list them, loop over each calling the command to update them. Ollama itself does not have an "update all my local LLMs" command, forcing you to type out ollama commands to update each. For me, I have about 15 local LLMs to work with, so this saves a lot of time.
 
 **RouterRebooter Tool - DEPRECATED**
 ```

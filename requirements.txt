@@ -1,6 +1,9 @@
 # Terminal Tools Requirements
 # Core dependencies for srtermtools project
 
+# Fundamental packaging tools
+setuptools<=80.10.2
+
 # Command line argument parsing
 docopt>=0.6.2,<0.7
 
@@ -21,3 +24,10 @@ ssdeep>=3.4,<4
 
 # HTML/XML parsing
 beautifulsoup4>=4.12.3,<5
+
+# Terminal Colors for various displays
+termcolor>=2.4.0,<3
+
+# Requests Cache for AQI checking
+requests-cache>=1.2.0,<2
+

@@ -18,6 +18,8 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+PYTHON_CMD=""
+
 # Function to print colored messages
 print_info() {
     echo -e "${GREEN}[INFO]${NC} $1"
@@ -49,6 +51,28 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+# Detect Python interpreter (prefer active pyenv interpreter when available)
+detect_python() {
+    if command_exists pyenv; then
+        if PYENV_PYTHON=$(pyenv which python 2>/dev/null); then
+            PYTHON_CMD="$PYENV_PYTHON"
+            print_info "Using pyenv Python: $PYTHON_CMD ($(pyenv version-name))"
+            return 0
+        fi
+    fi
+
+    if command_exists python3; then
+        PYTHON_CMD="$(command -v python3)"
+    elif command_exists python; then
+        PYTHON_CMD="$(command -v python)"
+    else
+        print_error "Python not found. Please install Python 3 first."
+        exit 1
+    fi
+
+    print_info "Using Python: $PYTHON_CMD"
+}
+
 # Install ssdeep system library on macOS
 install_macos() {
     print_info "Detected macOS"
@@ -68,8 +92,9 @@ install_macos() {
     fi
     
     # Set compiler flags for Python installation
-    export CFLAGS="-I/opt/homebrew/include"
-    export LDFLAGS="-L/opt/homebrew/lib"
+    BREW_PREFIX=$(brew --prefix)
+    export CFLAGS="-I${BREW_PREFIX}/include"
+    export LDFLAGS="-L${BREW_PREFIX}/lib"
 }
 
 # Install ssdeep system library on Debian/Ubuntu
@@ -140,39 +165,55 @@ install_from_source() {
 # Install Python ssdeep package
 install_python_package() {
     print_info "Installing Python ssdeep package..."
-    
-    # Detect Python command
-    if command_exists python3; then
-        PYTHON_CMD="python3"
-    elif command_exists python; then
-        PYTHON_CMD="python"
-    else
-        print_error "Python not found. Please install Python 3 first."
+
+    detect_python
+
+    if ! "$PYTHON_CMD" -m pip --version >/dev/null 2>&1; then
+        print_error "pip is not available for $PYTHON_CMD"
+        print_info "Install pip for this interpreter, then re-run this script."
         exit 1
     fi
     
     # Check Python version
-    PYTHON_VERSION=$($PYTHON_CMD --version 2>&1 | awk '{print $2}' | cut -d. -f1,2)
+    PYTHON_VERSION=$("$PYTHON_CMD" --version 2>&1 | awk '{print $2}' | cut -d. -f1,2)
     print_info "Using Python version: $PYTHON_VERSION"
     
     # Try to install the package
     print_info "Attempting to install Python ssdeep package..."
-    
-    # First, try with pip
-    if $PYTHON_CMD -m pip install ssdeep 2>&1 | grep -q "externally-managed-environment"; then
-        print_warning "Externally managed Python environment detected"
-        print_info "Trying with --user flag..."
-        $PYTHON_CMD -m pip install --user ssdeep || {
-            print_warning "Failed with --user, trying --break-system-packages..."
-            $PYTHON_CMD -m pip install --break-system-packages ssdeep
-        }
-    else
-        $PYTHON_CMD -m pip install ssdeep || {
+
+    # First, try regular pip install. If this fails with externally-managed-environment,
+    # fall back to --user, then --break-system-packages.
+    if ! INSTALL_OUTPUT=$("$PYTHON_CMD" -m pip install ssdeep 2>&1); then
+        if echo "$INSTALL_OUTPUT" | grep -q "externally-managed-environment"; then
+            print_warning "Externally managed Python environment detected"
+            print_info "Trying with --user flag..."
+            if ! "$PYTHON_CMD" -m pip install --user ssdeep; then
+                print_warning "Failed with --user, trying --break-system-packages..."
+                "$PYTHON_CMD" -m pip install --break-system-packages ssdeep
+            fi
+        else
+            # pyenv + modern pip/setuptools can fail with ssdeep's legacy build metadata.
+            # Retry on macOS with local build tooling and no build isolation.
+            if [[ "$(detect_os)" == "macos" ]]; then
+                print_warning "Initial install failed. Retrying with no build isolation..."
+                "$PYTHON_CMD" -m pip install setuptools wheel six cffi
+
+                BREW_PREFIX=$(brew --prefix)
+                if CFLAGS="-I${BREW_PREFIX}/include" \
+                   LDFLAGS="-L${BREW_PREFIX}/lib" \
+                   CPPFLAGS="-I${BREW_PREFIX}/include" \
+                   "$PYTHON_CMD" -m pip install --no-build-isolation ssdeep; then
+                    print_info "Python ssdeep package installed successfully"
+                    return 0
+                fi
+            fi
+
             print_error "Failed to install Python ssdeep package"
+            echo "$INSTALL_OUTPUT"
             print_info "If you're using a virtual environment, activate it and run:"
-            echo "  pip install ssdeep"
+            echo "  CFLAGS=\"-I\$(brew --prefix)/include\" LDFLAGS=\"-L\$(brew --prefix)/lib\" \"$PYTHON_CMD\" -m pip install --no-build-isolation ssdeep"
             exit 1
-        }
+        fi
     fi
     
     print_info "Python ssdeep package installed successfully"
@@ -181,9 +222,11 @@ install_python_package() {
 # Verify installation
 verify_installation() {
     print_info "Verifying installation..."
-    
+
+    detect_python
+
     # Verify Python import
-    if python3 -c "import ssdeep; print('ssdeep version:', ssdeep.__version__)" 2>/dev/null; then
+    if "$PYTHON_CMD" -c "import ssdeep; print('ssdeep version:', ssdeep.__version__)" 2>/dev/null; then
         print_info "✓ Python ssdeep package working correctly"
         return 0
     else
@@ -214,7 +257,7 @@ main() {
             print_error "Unsupported operating system: $OSTYPE"
             print_info "Please install ssdeep manually:"
             echo "  1. Install libfuzzy/ssdeep system library"
-            echo "  2. Run: pip install ssdeep"
+            echo "  2. Run: python3 -m pip install ssdeep"
             exit 1
             ;;
     esac
@@ -238,11 +281,11 @@ main() {
         print_info "Troubleshooting tips:"
         echo "  1. Make sure you have development tools installed"
         echo "  2. Check that ssdeep headers are in your include path"
-        echo "  3. For macOS: export CFLAGS=\"-I/opt/homebrew/include\" LDFLAGS=\"-L/opt/homebrew/lib\""
+        echo "  3. For macOS: export CFLAGS=\"-I\$(brew --prefix)/include\" LDFLAGS=\"-L\$(brew --prefix)/lib\""
         echo "  4. Try installing in a virtual environment:"
         echo "     python3 -m venv venv"
         echo "     source venv/bin/activate"
-        echo "     pip install ssdeep"
+        echo "     python -m pip install ssdeep"
         exit 1
     fi
 }

@@ -36,7 +36,7 @@ from docopt import DocoptExit, docopt
 from termcolor import colored
 
 # Constants
-AQI_API = "http://www.airnowapi.org/aq/observation/zipCode/current/"
+AQI_API = "http://www.airnowapi.org/aq/forecast/current/"
 CROSS_MARK = "✗"
 CHECK_MARK = "✓"
 
@@ -151,7 +151,9 @@ def process_aqi_data(
     for measurement in response_data:
         if not isinstance(measurement, dict):
             continue
-        if measurement.get("ParameterName") == "PM2.5":
+        if measurement.get("ParameterName") == "PM2.5" or measurement.get(
+            "parameterName"
+        ) == "PM2.5":
             pm25_data = measurement
             break
 
@@ -160,12 +162,21 @@ def process_aqi_data(
 
     pm25_details = cast(Dict[str, Any], pm25_data)
     try:
-        category = cast(Dict[str, Any], pm25_details["Category"])
-        category_number = int(category["Number"])
-        aqi_value = int(pm25_details["AQI"])
-        category_name = str(category["Name"])
-        hour_observed = pm25_details["HourObserved"]
-        local_timezone = pm25_details["LocalTimeZone"]
+        if "Category" in pm25_details:
+            category = cast(Dict[str, Any], pm25_details["Category"])
+            category_number = int(category["Number"])
+            aqi_value = int(pm25_details["AQI"])
+            category_name = str(category["Name"])
+            observed_suffix = (
+                f"as of {pm25_details['HourObserved']}:00 "
+                f"{pm25_details['LocalTimeZone']}."
+            )
+        else:
+            category_number = int(pm25_details["categoryNumber"])
+            aqi_value = int(pm25_details["aqi"])
+            category_name = str(pm25_details["categoryName"])
+            date_valid = str(pm25_details["dateValid"])
+            observed_suffix = f"for {date_valid}."
     except (KeyError, TypeError, ValueError):
         fail(f"Unexpected PM2.5 data format for zipcode {zipcode}")
 
@@ -176,7 +187,7 @@ def process_aqi_data(
             f"[{colored(aqi_value, colored_value)}] "
             f"AirNow reports AQI for {zipcode} is "
             f"{colored(category_name, colored_value)} "
-            f"as of {hour_observed}:00 {local_timezone}."
+            f"{observed_suffix}"
         )
         print(message)
 
@@ -184,7 +195,6 @@ def process_aqi_data(
 def fetch_aqi_data(api_key: str, zipcode: str) -> list:
     payload = {
         "format": "application/json",
-        "distance": "5",
         "zipCode": zipcode,
         "API_KEY": api_key,
     }
