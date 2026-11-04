@@ -96,13 +96,3 @@ Usage:
 ```
 This is a script to parse the installed LLMs with Ollama, list them, loop over each calling the command to update them. Ollama itself does not have an "update all my local LLMs" command, forcing you to type out ollama commands to update each. For me, I have about 15 local LLMs to work with, so this saves a lot of time.
 
-**RouterRebooter Tool - DEPRECATED**
-```
-Usage:
-    routerrebooter check
-    routerrebooter reset
-    routerrebooter forward (enable|disable)
-```
-Honestly, unless you have this crummy type of Comcast router you're not going to need to use this tool. It does a quick reset or adjusts port fowarding as needed from the command line faster than the terrible asp website cooked into the router.
-
-Update 2022: I have a new router from Comcast. As this code was written against an undocumented, blackbox firmware based web app, it naturally doesn't work anymore against new routers with updated firmware. Glad to see I don't need this, but it's an amusing relic from the past if I need a code snippet.
