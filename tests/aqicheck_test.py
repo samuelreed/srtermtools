@@ -71,6 +71,10 @@ class TestAqiCheckConfiguration(unittest.TestCase):
 
 
 class TestAqiCheckResponses(unittest.TestCase):
+    def setUp(self):
+        # Reset the global cached session for each test
+        aqicheck._cached_session = None
+
     def fake_response(self, status_code=200, reason="OK", payload=None):
         response = MagicMock()
         response.status_code = status_code
@@ -90,11 +94,14 @@ class TestAqiCheckResponses(unittest.TestCase):
 
         stdout = io.StringIO()
         stderr = io.StringIO()
-        with patch("aqicheck.requests.get", return_value=response):
-            with contextlib.redirect_stdout(stdout):
-                with contextlib.redirect_stderr(stderr):
-                    with self.assertRaises(SystemExit) as exc:
-                        aqicheck.fetch_aqi_data("test-key", "94105")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            cache_path = Path(tmpdir) / ".dirty-aqi-cache"
+            aqicheck.setup_cache(cache_path)
+            with patch.object(aqicheck._cached_session, "get", return_value=response):
+                with contextlib.redirect_stdout(stdout):
+                    with contextlib.redirect_stderr(stderr):
+                        with self.assertRaises(SystemExit) as exc:
+                            aqicheck.fetch_aqi_data("test-key", "94105")
 
         self.assertEqual(exc.exception.code, 1)
         self.assertEqual(stdout.getvalue(), "")
@@ -105,11 +112,14 @@ class TestAqiCheckResponses(unittest.TestCase):
 
         stdout = io.StringIO()
         stderr = io.StringIO()
-        with patch("aqicheck.requests.get", return_value=response):
-            with contextlib.redirect_stdout(stdout):
-                with contextlib.redirect_stderr(stderr):
-                    with self.assertRaises(SystemExit) as exc:
-                        aqicheck.fetch_aqi_data("test-key", "94105")
+        with tempfile.TemporaryDirectory() as tmpdir:
+            cache_path = Path(tmpdir) / ".dirty-aqi-cache"
+            aqicheck.setup_cache(cache_path)
+            with patch.object(aqicheck._cached_session, "get", return_value=response):
+                with contextlib.redirect_stdout(stdout):
+                    with contextlib.redirect_stderr(stderr):
+                        with self.assertRaises(SystemExit) as exc:
+                            aqicheck.fetch_aqi_data("test-key", "94105")
 
         self.assertEqual(exc.exception.code, 1)
         self.assertEqual(stdout.getvalue(), "")

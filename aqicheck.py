@@ -35,8 +35,11 @@ import requests_cache
 from docopt import DocoptExit, docopt
 from termcolor import colored
 
+# Global cached session - initialized by setup_cache()
+_cached_session: Optional[requests_cache.CachedSession] = None
+
 # Constants
-AQI_API = "http://www.airnowapi.org/aq/forecast/current/"
+AQI_API = "https://www.airnowapi.org/aq/forecast/current/"
 CROSS_MARK = "✗"
 CHECK_MARK = "✓"
 
@@ -127,16 +130,32 @@ def get_aqi_threshold(args: Dict) -> int:
     return 0  # Default: show all AQI levels
 
 
-def setup_cache(cache_path: Optional[Path] = None) -> None:
-    """Setup request cache with proper file permissions."""
+def setup_cache(cache_path: Optional[Path] = None) -> requests_cache.CachedSession:
+    """Setup request cache with proper file permissions.
+    
+    Returns:
+        CachedSession: A requests session configured with 1-hour caching.
+    """
+    global _cached_session
+    
     if cache_path is None:
         cache_path = Path.home() / ".dirty-aqi-cache"
-    requests_cache.install_cache(str(cache_path), expire_after=3600)
-
+    
+    # Create a CachedSession with 1-hour TTL (3600 seconds)
+    _cached_session = requests_cache.CachedSession(
+        str(cache_path),
+        expire_after=3600,
+        allowable_codes=(200,),
+        allowable_methods=("GET",),
+    )
+    
+    # Ensure cache file has secure permissions
     sqlite_cache = cache_path.with_suffix(".sqlite")
     if sqlite_cache.exists():
         if sqlite_cache.stat().st_mode & 0o777 != SECURE_FILE_MODE:
             os.chmod(sqlite_cache, SECURE_FILE_MODE)
+    
+    return _cached_session
 
 
 def process_aqi_data(
@@ -193,6 +212,20 @@ def process_aqi_data(
 
 
 def fetch_aqi_data(api_key: str, zipcode: str) -> list:
+    """Fetch AQI data from API using cached session.
+    
+    Args:
+        api_key: AirNow API key
+        zipcode: ZIP code to fetch AQI for
+        
+    Returns:
+        list: JSON response data from API
+    """
+    global _cached_session
+    
+    if _cached_session is None:
+        fail("Cache not initialized. Call setup_cache() first.")
+    
     payload = {
         "format": "application/json",
         "zipCode": zipcode,
@@ -201,7 +234,7 @@ def fetch_aqi_data(api_key: str, zipcode: str) -> list:
 
     response: Optional[requests.Response] = None
     try:
-        response = requests.get(
+        response = _cached_session.get(
             AQI_API,
             params=payload,
             proxies=proxies,

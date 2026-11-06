@@ -35,15 +35,49 @@ Or install manually (recommended: use the same interpreter you run tools with, e
 
 ## Testing
 
-How do I run the tests?
-* python3 -m unittest discover -s tests -p '*_test.py'
+**Important**: Dependencies must be installed in the Python interpreter you'll use to run tests.
 
-Local validation only:
-* ruff check .
-* black --check .
+### Install Dependencies
 
-To check test coverage:
-* coverage erase; coverage run -m unittest discover -s tests -p '*_test.py'; coverage report
+```bash
+# Install core dependencies
+pip3 install -r requirements.txt
+
+# Install developer dependencies (required for tests and linting)
+pip3 install -r requirements-dev.txt
+```
+
+**Special note for ssdeep**: The `ssdeep` package requires system libraries before pip installation:
+```bash
+# Automated setup (recommended):
+./install_ssdeep.sh
+
+# OR manual setup:
+# macOS: brew install ssdeep && pip3 install ssdeep
+# Debian/Ubuntu: sudo apt-get install libfuzzy-dev && pip3 install ssdeep
+# Fedora/RHEL: sudo dnf install ssdeep-devel && pip3 install ssdeep
+```
+
+### Run Tests
+
+```bash
+python3 -m unittest discover -s tests -p '*_test.py'
+```
+
+### Local Validation
+
+```bash
+ruff check .
+black --check .
+```
+
+### Check Test Coverage
+
+```bash
+coverage erase
+coverage run -m unittest discover -s tests -p '*_test.py'
+coverage report
+```
 
 This repository intentionally does not use GitHub-hosted CI or Dependabot. Run checks locally when needed.
 
